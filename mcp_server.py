@@ -32,31 +32,6 @@ RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
 mcp = FastMCP("Surelook Holmes")
 
 @mcp.tool()
-def list_sessions(limit: int = 10) -> List[Dict[str, Any]]:
-    """List recent sessions from the database."""
-    if not supabase:
-        return [{"error": "Supabase client not initialized"}]
-    
-    response = supabase.table("sessions").select("*").order("created_at", desc=True).limit(limit).execute()
-    return response.data
-
-@mcp.tool()
-def get_session(session_id: str) -> Dict[str, Any]:
-    """Get a specific session by ID."""
-    if not supabase:
-        return {"error": "Supabase client not initialized"}
-    
-    response = supabase.table("sessions").select("*").eq("id", session_id).single().execute()
-    return response.data
-
-@mcp.tool()
-def list_identities(limit: int = 10) -> List[Dict[str, Any]]:
-    """List identities from the database."""
-    if not supabase:
-        return [{"error": "Supabase client not initialized"}]
-    
-    response = supabase.table("identities").select("*").limit(limit).execute()
-@mcp.tool()
 def get_identity(identity_id: str) -> Dict[str, Any]:
     """Get a specific identity by ID."""
     if not supabase:
@@ -156,6 +131,27 @@ def get_notes(identity_id: str, limit: int = 50) -> List[Dict[str, Any]]:
     
     response = supabase.table("events").select("*").eq("related_identity_id", identity_id).eq("type", "NOTES").order("created_at", desc=True).limit(limit).execute()
     return response.data
+
+@mcp.tool()
+def take_notes(identity_id: str, content: str) -> Dict[str, Any]:
+    """
+    Take notes for a specific identity.
+    
+    Args:
+        identity_id: The UUID of the identity.
+        content: The content of the note.
+    """
+    if not supabase:
+        return {"error": "Supabase client not initialized"}
+    
+    data = {
+        "type": "NOTES",
+        "content": content,
+        "related_identity_id": identity_id
+    }
+    
+    response = supabase.table("events").insert(data).execute()
+    return response.data[0] if response.data else {}
 
 @mcp.tool()
 def who_is_this(linkedin_url: str) -> Dict[str, Any]:
