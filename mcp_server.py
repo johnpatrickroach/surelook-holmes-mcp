@@ -1,8 +1,16 @@
 import os
 import warnings
 
-# Suppress Pydantic deprecation warnings from dependencies
+# Suppress Pydantic deprecation warnings from dependencies (supabase/storage3)
+try:
+    from pydantic.warnings import PydanticDeprecatedSince20
+    warnings.filterwarnings("ignore", category=PydanticDeprecatedSince20)
+except ImportError:
+    pass
+# Fallback for string matching
 warnings.filterwarnings("ignore", message=".*PydanticDeprecatedSince20.*")
+warnings.filterwarnings("ignore", message=".*pydantic.config.Extra.*")
+
 from typing import List, Optional, Dict, Any
 from fastmcp import FastMCP
 from supabase import create_client, Client
