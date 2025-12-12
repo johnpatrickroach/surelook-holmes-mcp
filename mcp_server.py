@@ -67,4 +67,4 @@ def get_greeting(name: str) -> str:
 if __name__ == "__main__":
     # Run the server with SSE transport (streamable-http)
     print("Starting Surelook Holmes MCP server on SSE transport...")
-    mcp.run(transport="sse")
+    mcp.run(transport="streamable-http")
