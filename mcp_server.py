@@ -46,6 +46,7 @@ def update_identity(
     name: Optional[str] = None,
     relationship_status: Optional[str] = None,
     linkedin_url: Optional[str] = None,
+    headshot_media_url: Optional[str] = None,
     metadata: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
@@ -56,7 +57,8 @@ def update_identity(
         name: New name (optional).
         relationship_status: New relationship status (optional).
         linkedin_url: New LinkedIn URL (optional).
-        metadata: New metadata dictionary (optional, merges or replaces depending on supabase behavior, usually replaces top level keys).
+        headshot_media_url: New headshot media URL (optional).
+        metadata: New metadata dictionary (optional).
     """
     if not supabase:
         return {"error": "Supabase client not initialized"}
@@ -68,6 +70,8 @@ def update_identity(
         updates["relationship_status"] = relationship_status
     if linkedin_url is not None:
         updates["linkedin_url"] = linkedin_url
+    if headshot_media_url is not None:
+        updates["headshot_media_url"] = headshot_media_url
     if metadata is not None:
         updates["metadata"] = metadata
         
@@ -97,7 +101,7 @@ def create_event(
     Create a new event.
     
     Args:
-        type: Must be one of 'VISUAL_OBSERVATION', 'CONVERSATION_NOTE', 'AGENT_WHISPER'.
+        type: Must be one of 'VISUAL_OBSERVATION', 'NOTES', 'AGENT_WHISPER'.
         content: The content of the event.
         session_id: Optional UUID of the associated session.
         related_identity_id: Optional UUID of the related identity.
@@ -117,11 +121,10 @@ def create_event(
     response = supabase.table("events").insert(data).execute()
     return response.data[0] if response.data else {}
 
-
 @mcp.tool()
 def get_notes(identity_id: str, limit: int = 50) -> List[Dict[str, Any]]:
     """
-    Get conversation notes (events with type 'CONVERSATION_NOTE') for a specific identity.
+    Get conversation notes (events with type 'NOTES') for a specific identity.
     
     Args:
         identity_id: The UUID of the identity.
