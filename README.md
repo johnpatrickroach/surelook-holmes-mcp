@@ -24,10 +24,18 @@ A Model Context Protocol (MCP) server for Surelook Holmes, built with `fastmcp` 
 2. **Install Dependencies**
 
    ```bash
-   uv pip install -p .venv fastmcp
+   uv pip install -p .venv fastmcp supabase python-dotenv
    # OR
    source .venv/bin/activate
-   pip install fastmcp
+   pip install fastmcp supabase python-dotenv
+   ```
+
+3. **Configure Environment Variables**
+
+   Create a `.env` file in the project root:
+   ```env
+   SUPABASE_URL=your_project_url
+   SUPABASE_KEY=your_public_anon_key
    ```
 
 ## Running the Server
