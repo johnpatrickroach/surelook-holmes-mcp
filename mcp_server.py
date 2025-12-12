@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize Supabase client
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_URL = os.getenv("PUBLIC_SUPABASE_URL")
+SUPABASE_KEY = os.getenv("PUBLIC_SUPABASE_PUBLISHABLE_KEY")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
-    print("Warning: SUPABASE_URL and SUPABASE_KEY environment variables must be set.")
+    print("Warning: SUPABASE_URL and SUPABASE_KEY (or PUBLIC variants) environment variables must be set.")
 
 try:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
