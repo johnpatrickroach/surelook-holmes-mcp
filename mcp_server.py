@@ -1,5 +1,7 @@
 import os
 import warnings
+import platform
+import sys
 
 # Suppress Pydantic deprecation warnings from dependencies (supabase/storage3)
 try:
@@ -71,12 +73,51 @@ def get_events(session_id: str, limit: int = 50) -> List[Dict[str, Any]]:
     response = supabase.table("events").select("*").eq("session_id", session_id).order("created_at").limit(limit).execute()
     return response.data
 
-@mcp.resource("greeting://{name}")
-def get_greeting(name: str) -> str:
-    """Get a greeting for a name."""
-    return f"Hello, {name}!"
+@mcp.tool()
+def create_event(
+    type: str,
+    content: str,
+    session_id: Optional[str] = None,
+    related_identity_id: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Create a new event.
+    
+    Args:
+        type: Must be one of 'VISUAL_OBSERVATION', 'CONVERSATION_NOTE', 'AGENT_WHISPER'.
+        content: The content of the event.
+        session_id: Optional UUID of the associated session.
+        related_identity_id: Optional UUID of the related identity.
+    """
+    if not supabase:
+        return {"error": "Supabase client not initialized"}
+    
+    data = {
+        "type": type,
+        "content": content,
+    }
+    if session_id:
+        data["session_id"] = session_id
+    if related_identity_id:
+        data["related_identity_id"] = related_identity_id
+        
+    response = supabase.table("events").insert(data).execute()
+    return response.data[0] if response.data else {}
+
+@mcp.resource("system://info")
+def system_info() -> str:
+   """
+   Returns basic system information including Python version and platform.
+   """
+   return f"""
+   System Information:
+   ------------------
+   Platform: {platform.system()} {platform.release()}
+   Python Version: {sys.version}
+   """
+
 
 if __name__ == "__main__":
-    # Run the server with SSE transport (streamable-http)
-    print("Starting Surelook Holmes MCP server on SSE transport...")
+    # Run the server with Streamable-HTTP transport (streamable-http)
+    print("Starting Surelook Holmes MCP server on Streamable-HTTP transport...")
     mcp.run(transport="streamable-http")
